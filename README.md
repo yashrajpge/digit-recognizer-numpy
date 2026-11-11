@@ -14,10 +14,13 @@ Built by Yashraj Pangave.
   handwritten digits data, using the canonical split: 3,823 training
   images and 1,797 held-out test images.
 - With the default settings (`python src/train.py`, seed 42) the measured
-  result is 96.8% accuracy on the 1,797 test images. The run is
-  deterministic, so the same command reproduces the same number. A
+  result is 97.4% accuracy on the 1,797 test images (1,750 correct). The
+  run is deterministic, so the same command reproduces the same number. A
   simpler one-hidden-layer configuration (`--layers 64,32,10 --epochs 60
   --l2 0`) measures 95.7% on the same test set.
+- `python scripts/eval_confusion.py` breaks the result down per digit:
+  0 is never missed (178/178), 8 and 7 are the hardest (93.7% and 93.9%),
+  and the most common slip is 7 read as 5 (7 times in 1,797).
 
 ## Quick start
 
@@ -25,6 +28,7 @@ Built by Yashraj Pangave.
 pip install -r requirements.txt   # numpy; Pillow only for the photo eval script
 python src/train.py               # downloads the data once, trains, saves weights
 python tests/test_model.py        # sanity tests
+python scripts/eval_confusion.py  # per-digit accuracy and confusion matrix
 ```
 
 The dataset is not bundled with this repository. The first run downloads
@@ -49,13 +53,13 @@ filter -> normalize each digit crop -> classify with the trained network
 Measured end to end (`python scripts/eval_number_reader.py`, deterministic
 seed 7, on the held-out test set rendered as photo-like images):
 
-- Single digits, one photo each: 94.6% read correctly (1,700 of 1,797),
-  vs 96.8% on the untouched test features. Going through a photo costs
+- Single digits, one photo each: 95.0% read correctly (1,707 of 1,797),
+  vs 97.4% on the untouched test features. Going through a photo costs
   about two points.
-- Photos of 2-4 digit numbers (200 photos): 88.0% whole-number exact
-  reads, 95.8% per-digit accuracy, no segmentation surprises.
-- The confidence flag (below 0.90) marked 8.1% of digits for a human
-  glance and caught 17 of the 25 actual errors.
+- Photos of 2-4 digit numbers (200 photos): 88.5% whole-number exact
+  reads, 96.0% per-digit accuracy, no segmentation surprises.
+- The confidence flag (below 0.90) marked 8.4% of digits for a human
+  glance and caught 17 of the 24 actual errors.
 
 Same-test-set note: these numbers reuse the Optdigits test split that
 also guided model selection, so treat them as a description of this
@@ -85,6 +89,7 @@ src/train.py     training loop (canonical 3,823 / 1,797 split)
 src/predict.py   classify one image from the command line
 src/number_reader/  photo -> multi-digit number pipeline
 scripts/eval_number_reader.py  end-to-end photo evaluation
+scripts/eval_confusion.py      per-digit accuracy and confusion matrix
 tests/           sanity tests (split shapes, loss decreases, determinism)
 data/            local dataset cache (git-ignored, created on first run)
 models/          trained weights (git-ignored, created by src/train.py)
