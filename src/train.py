@@ -14,7 +14,7 @@ from model import NeuralNetwork
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--layers", default="64,64,32,10",
+    parser.add_argument("--layers", default="64,128,64,10",
                         help="comma-separated layer sizes, input first, output last")
     parser.add_argument("--epochs", type=int, default=80)
     parser.add_argument("--lr", type=float, default=0.5)
