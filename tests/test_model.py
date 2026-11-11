@@ -51,6 +51,20 @@ def test_model_is_deterministic():
     print(f"ok: same seed gives identical loss ({losses[0]:.6f})")
 
 
+def test_confusion_matrix():
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    from eval_confusion import confusion_matrix
+    y_true = np.array([0, 0, 1, 1, 1, 2, 9, 9])
+    y_pred = np.array([0, 1, 1, 1, 2, 2, 9, 8])
+    m = confusion_matrix(y_true, y_pred)
+    assert m.shape == (10, 10)
+    assert m.sum() == len(y_true)
+    assert (m.sum(axis=1) == np.bincount(y_true, minlength=10)).all()
+    assert np.trace(m) == (y_true == y_pred).sum()
+    assert m[9, 8] == 1 and m[0, 1] == 1
+    print("ok: confusion matrix shape, row sums and counts")
+
+
 def test_save_load_roundtrip():
     import tempfile
     X_test, _ = load_split("test")
@@ -68,5 +82,6 @@ if __name__ == "__main__":
     test_data_shape()
     test_training_reduces_loss()
     test_model_is_deterministic()
+    test_confusion_matrix()
     test_save_load_roundtrip()
     print("all tests passed")
